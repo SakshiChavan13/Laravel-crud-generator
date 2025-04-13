@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Constants\Permissions;
+
+class {{ modelName }}Permissions
+{
+    const CREATE_{{ upperModel }} = [
+        'name' => 'create_{{ tableName }}',
+        'group' => '{{ tableName }}',
+        'sub_group' => '{{ tableName }}',
+        'guard_name' => 'web',
+    ];
+
+    const UPDATE_{{ upperModel }} = [
+        'name' => 'update_{{ tableName }}',
+        'group' => '{{ tableName }}',
+        'sub_group' => '{{ tableName }}',
+        'guard_name' => 'web',
+    ];
+
+    const DELETE_{{ upperModel }} = [
+        'name' => 'delete_{{ tableName }}',
+        'group' => '{{ tableName }}',
+        'sub_group' => '{{ tableName }}',
+        'guard_name' => 'web',
+    ];
+
+    const VIEW_{{ upperModel }} = [
+        'name' => 'view_{{ tableName }}',
+        'group' => '{{ tableName }}',
+        'sub_group' => '{{ tableName }}',
+        'guard_name' => 'web',
+    ];
+}

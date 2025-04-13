@@ -1,0 +1,32 @@
+{
+    "model": "Post",
+    "fields": [
+        {
+            "name": "title",
+            "type": "string",
+            "nullable":false
+        },
+        {
+            "name": "content",
+            "type": "text",
+            "nullable": false
+        },
+        {
+            "name": "user_id",
+            "type": "integer",
+            "nullable": false
+        },
+        {
+            "name": "owner_id",
+            "type": "integer",
+            "nullable": false
+        },
+
+        {
+            "name": "is_restricted",
+            "type": "boolean",
+            "nullable": false,
+            "default": 1
+        }
+    ]
+}
