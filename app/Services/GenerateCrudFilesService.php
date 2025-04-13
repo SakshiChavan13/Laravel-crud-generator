@@ -39,7 +39,7 @@ class GenerateCrudFilesService
             $this->generateModel($modelName, $fields);
             $this->generateMigration($modelName, $fields);
             $this->generateResource($modelName, $fields);
-            // $this->generateController($modelName, $generateInsideFolder);
+            $this->generateController($modelName);
 
             // $this->generateFactory($modelName, $fields, $generateInsideFolder);
 
@@ -335,7 +335,7 @@ EOD;
     private  function generateController($modelName)
     {
         try {
-            $stub = File::get(base_path('stubs/controller.stub'));
+            $stub = File::get(base_path('app/Stubs/Controller.stub'));
 
             $modelVariable = Str::camel($modelName);
 
@@ -345,8 +345,16 @@ EOD;
                 $stub
             );
 
-            $path = app_path("Http/Controllers/{$modelName}Controller.php");
+            $dir = app_path("Http/Controllers/{$modelName}");
+            if (!File::exists($dir)) {
+                File::makeDirectory($dir, 0755, true);
+            }
+
+            $className = "{$modelName}Controller";
+
+            $path = "{$dir}/{$className}.php";
             File::put($path, $stub);
+
 
             $this->command->info("Controller created: $path");
         } catch (Exception $e) {
