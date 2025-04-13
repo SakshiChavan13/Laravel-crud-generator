@@ -41,6 +41,8 @@ class GenerateCrudFilesService
             $this->generateResource($modelName, $fields);
             $this->generateController($modelName);
 
+            $this->addApiRoute($modelName);
+
             // $this->generateFactory($modelName, $fields, $generateInsideFolder);
 
 
@@ -53,6 +55,20 @@ class GenerateCrudFilesService
         }
     }
 
+    private function addApiRoute($modelName)
+    {
+        try {
+            $controllerName = Str::studly($modelName) . 'Controller';
+            $endpoint = Str::plural(Str::kebab($modelName));
+
+            $route = "Route::apiResource('{$endpoint}', \\App\\Http\\Controllers\\{$modelName}\\{$controllerName}::class);";
+
+            File::append(base_path('routes/api.php'), "\n" . $route . "\n");
+
+        } catch (Exception $e) {
+            throw ($e);
+        }
+    }
 
     private function generatePermissions($modelName)
     {
