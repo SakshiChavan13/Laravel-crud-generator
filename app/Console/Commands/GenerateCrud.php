@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\GenerateCrudFilesService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -22,9 +23,6 @@ class GenerateCrud extends Command
         }
 
         $template = json_decode(File::get($templatePath), true);
-        $modelName = $template['model'];
-        $fields = $template['fields'];
-        // dump($fields);
 
         $this->generatePermissions($modelName);
 
@@ -453,4 +451,12 @@ EOD;
     $this->info("Feature test created at: {$filePath}");
 }
 
+
+        $service = new GenerateCrudFilesService($this); 
+        $service->genrateCrud($template);
+       
+    }
+
+
+  
 }

@@ -1,16 +1,20 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\{{ modelName }};
 
 use App\Models\{{ modelName }};
-use App\Http\Resources\{{ modelName }}Resource;
-use App\Http\Requests\Store{{ modelName }}Request;
-use App\Http\Requests\Update{{ modelName }}Request;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\{{ modelName }}\{{ modelName }}Resource;
+use App\Http\Requests\{{ modelName }}\Store{{ modelName }}Request;
+use App\Http\Requests\{{ modelName }}\Update{{ modelName }}Request;
+use App\Http\Requests\{{ modelName }}\Index{{ modelName }}Request;
+use App\Http\Requests\{{ modelName }}\Show{{ modelName }}Request;
+use App\Http\Requests\{{ modelName }}\Delete{{ modelName }}Request;
 use Illuminate\Http\Request;
 
 class {{ modelName }}Controller extends Controller
 {
-    public function index()
+    public function index(Index{{ modelName }}Request $request)
     {
         return {{ modelName }}Resource::collection({{ modelName }}::all());
     }
@@ -21,7 +25,7 @@ class {{ modelName }}Controller extends Controller
         return new {{ modelName }}Resource($model);
     }
 
-    public function show({{ modelName }} ${{ modelVariable }})
+    public function show(Show{{ modelName }}Request $request,{{ modelName }} ${{ modelVariable }})
     {
         return new {{ modelName }}Resource(${{ modelVariable }});
     }
@@ -32,7 +36,7 @@ class {{ modelName }}Controller extends Controller
         return new {{ modelName }}Resource(${{ modelVariable }});
     }
 
-    public function destroy({{ modelName }} ${{ modelVariable }})
+    public function destroy(Delete{{ modelName }}Request $request,{{ modelName }} ${{ modelVariable }})
     {
         ${{ modelVariable }}->delete();
         return response()->noContent();
