@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Console\Commands;
+namespace SakshiChavan\LaravelCrudGenerator\Commands;
 
-use App\Services\GenerateCrudFilesService;
+use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
+use SakshiChavan\LaravelCrudGenerator\Services\GenerateCrudFilesService;
 
 class GenerateCrud extends Command
 {

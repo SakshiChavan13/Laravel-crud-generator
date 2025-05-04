@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Services;
+namespace SakshiChavan\LaravelCrudGenerator\Services;
 
 
 use Exception;
@@ -53,26 +53,11 @@ class GenerateCrudFilesService
         }
     }
 
-    private function addApiRoute($modelName)
-    {
-        try {
-            $controllerName = Str::studly($modelName) . 'Controller';
-            $endpoint = Str::plural(Str::kebab($modelName));
-
-            $route = "Route::apiResource('{$endpoint}', \\App\\Http\\Controllers\\{$modelName}\\{$controllerName}::class);";
-
-            File::append(base_path('routes/api.php'), "\n" . $route . "\n");
-        } catch (Exception $e) {
-            throw ($e);
-        }
-    }
 
     private function generatePermissions($modelName)
     {
         try {
-
-            $stub = File::get(base_path('app/Stubs/Permissions.stub'));
-
+            $stub = $this->getStubContent('Permissions.stub');
             $upperModel = Str::upper($modelName);
             $tableName = Str::plural(Str::snake($modelName));
 
@@ -102,7 +87,7 @@ class GenerateCrudFilesService
     private function generateRequest($modelName, $type, $fields)
     {
         try {
-            $stub = File::get(base_path('app/Stubs/Request.stub'));
+            $stub = $this->getStubContent('Request.stub');
 
             $namespaceModel = Str::studly($modelName);
             $className = ucfirst(strtolower($type)) . "{$namespaceModel}Request";
@@ -174,7 +159,7 @@ class GenerateCrudFilesService
     private function generateModel($modelName, $fields)
     {
         try {
-            $stub = File::get(base_path('app/Stubs/Model.stub'));
+            $stub = $this->getStubContent('Model.stub');
 
             $fillable = collect($fields)
                 ->pluck('name')
@@ -228,7 +213,7 @@ EOD;
     private function generateMigration($modelName, $fields)
     {
         try {
-            $stub = File::get(base_path('app/Stubs/Migrations.stub'));
+            $stub = $this->getStubContent('Migrations.stub');
 
             $tableName = Str::plural(Str::snake($modelName));
             $fieldLines = '';
@@ -286,7 +271,7 @@ EOD;
     {
         try {
 
-            $stub = File::get(base_path('app/Stubs/Resource.stub'));
+            $stub = $this->getStubContent('Resource.stub');
             $resourceFields = [
                 "id" => '$this->id',
 
@@ -348,7 +333,7 @@ EOD;
     private  function generateController($modelName)
     {
         try {
-            $stub = File::get(base_path('app/Stubs/Controller.stub'));
+            $stub = $this->getStubContent('Controller.stub');
 
             $modelVariable = Str::camel($modelName);
 
@@ -401,7 +386,7 @@ EOD;
 
     private function generateFactory($modelName, $fields)
     {
-        $stub = File::get(base_path('app/Stubs/Factory.stub'));
+        $stub = $this->getStubContent('Factory.stub');
 
         $namespaceModel = Str::studly($modelName);
         $className = "{$namespaceModel}Factory";
@@ -455,7 +440,7 @@ EOD;
 
     private function generateTests($modelName)
     {
-        $stub = File::get(base_path('app/Stubs/Test.stub'));
+        $stub = $this->getStubContent('Test.stub');;
 
         $className = Str::studly($modelName);
         $route = Str::plural(Str::kebab($modelName));
@@ -501,4 +486,27 @@ EOD;
             $this->command->warn("Route for {$modelName} already exists in routes/api.php");
         }
     }
+
+    public function getStubContent(string $stubName): string
+    {
+        try {
+           
+            if (File::exists(resource_path('crud-generator-stubs/' . $stubName))) {
+                
+                return File::get(resource_path('crud-generator-stubs/' . $stubName));
+            } else {
+                
+                $stubPath = realpath(__DIR__ . '/../Stubs/' . $stubName);
+                
+                if (!File::exists($stubPath)) {
+                    throw new Exception("Stub file not found: " . $stubName);
+                }
+
+                return File::get($stubPath);
+            }
+        } catch (Exception $e) {
+            throw new Exception("Error getting stub content: " . $e->getMessage());
+        }
+    }
+
 }
