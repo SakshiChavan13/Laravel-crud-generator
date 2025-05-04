@@ -1,7 +1,6 @@
 # Laravel CRUD Generator
 
 A simple and customizable Laravel package to generate CRUD operations from a JSON template.  
-**This package is under development** and can be manually added to your Laravel project for testing.
 
 ---
 
