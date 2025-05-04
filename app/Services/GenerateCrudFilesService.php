@@ -41,14 +41,12 @@ class GenerateCrudFilesService
             $this->generateResource($modelName, $fields);
             $this->generateController($modelName);
 
-            $this->addApiRoute($modelName);
 
-            // $this->generateFactory($modelName, $fields, $generateInsideFolder);
+            $this->generateRoutes($modelName);
 
+            $this->generateFactory($modelName, $fields);
 
-
-
-
+            $this->generateTests($modelName);
         } catch (Exception $e) {
 
             throw ($e);
@@ -64,7 +62,6 @@ class GenerateCrudFilesService
             $route = "Route::apiResource('{$endpoint}', \\App\\Http\\Controllers\\{$modelName}\\{$controllerName}::class);";
 
             File::append(base_path('routes/api.php'), "\n" . $route . "\n");
-
         } catch (Exception $e) {
             throw ($e);
         }
@@ -398,6 +395,110 @@ EOD;
             return implode("\n", $lines);
         } catch (Exception $e) {
             throw $e;
+        }
+    }
+
+
+    private function generateFactory($modelName, $fields)
+    {
+        $stub = File::get(base_path('app/Stubs/Factory.stub'));
+
+        $namespaceModel = Str::studly($modelName);
+        $className = "{$namespaceModel}Factory";
+
+        $definitions = [];
+
+        foreach ($fields as $field) {
+            $name = $field['name'];
+            $type = $field['type'];
+            $default = $field['default'] ?? null;
+
+            if (Str::endsWith($name, '_id')) {
+                $relation = Str::studly(str_replace('_id', '', $name));
+                $definitions[] = "'{$name}' => \\App\\Models\\{$relation}::factory(),";
+            } elseif (!is_null($default)) {
+                $value = is_string($default) ? "'{$default}'" : $default;
+                $definitions[] = "'{$name}' => {$value},";
+            } else {
+                $definitions[] = "'{$name}' => " . $this->getFakerForType($type) . ",";
+            }
+        }
+
+        $definitionsString = implode("\n            ", $definitions);
+
+        $stub = str_replace(
+            ['{{ modelName }}', '{{ className }}', '{{ definitions }}'],
+            [$namespaceModel, $className, $definitionsString],
+            $stub
+        );
+
+        $path = database_path("factories/{$className}.php");
+        File::put($path, $stub);
+        $this->command->info("factory created: $path");
+    }
+
+
+    private function getFakerForType(string $type): string
+    {
+        return match ($type) {
+            'string' => '$this->faker->sentence',
+            'text' => '$this->faker->paragraph',
+            'integer' => '$this->faker->randomNumber()',
+            'boolean' => '$this->faker->boolean',
+            'date' => '$this->faker->date()',
+            'datetime' => '$this->faker->dateTime()',
+            'email' => '$this->faker->unique()->safeEmail',
+            'name' => '$this->faker->name',
+            default => "'sample'",
+        };
+    }
+
+    private function generateTests($modelName)
+    {
+        $stub = File::get(base_path('app/Stubs/Test.stub'));
+
+        $className = Str::studly($modelName);
+        $route = Str::plural(Str::kebab($modelName));
+
+        $stub = str_replace(
+            ['{{ modelName }}', '{{ route }}'],
+            [$className, $route],
+            $stub
+        );
+
+        $testDir = base_path("tests/Feature/{$className}");
+        if (!File::exists($testDir)) {
+            File::makeDirectory($testDir, 0755, true);
+        }
+
+        $filePath = "{$testDir}/{$className}Test.php";
+        File::put($filePath, $stub);
+        $this->command->info("test file created: $filePath");
+    }
+
+    private function generateRoutes($modelName)
+    {
+        $resourceName = Str::plural(Str::kebab($modelName));
+        $controllerName = "{$modelName}Controller";
+
+        $routeEntry = "Route::apiResource('{$resourceName}', \\App\\Http\\Controllers\\{$controllerName}::class);\n";
+
+        $routeFile = base_path('routes/api.php');
+
+        // Ensure the routes directory and file exist
+        if (!File::exists($routeFile)) {
+            File::ensureDirectoryExists(base_path('routes'));
+            File::put($routeFile, "<?php\n\nuse Illuminate\\Support\\Facades\\Route;\n\n");
+            $this->command->info("routes/api.php file created.");
+        }
+
+        $contents = File::get($routeFile);
+
+        if (!Str::contains($contents, $controllerName)) {
+            File::append($routeFile, "\n" . $routeEntry);
+            $this->command->info("API route added for {$modelName} in routes/api.php");
+        } else {
+            $this->command->warn("Route for {$modelName} already exists in routes/api.php");
         }
     }
 }
