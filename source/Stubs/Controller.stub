@@ -9,7 +9,7 @@ use App\Http\Requests\{{ modelName }}\Store{{ modelName }}Request;
 use App\Http\Requests\{{ modelName }}\Update{{ modelName }}Request;
 use App\Http\Requests\{{ modelName }}\Index{{ modelName }}Request;
 use App\Http\Requests\{{ modelName }}\Show{{ modelName }}Request;
-use App\Http\Requests\{{ modelName }}\Delete{{ modelName }}Request;
+use App\Http\Requests\{{ modelName }}\Destroy{{ modelName }}Request;
 use Illuminate\Http\Request;
 
 class {{ modelName }}Controller extends Controller
