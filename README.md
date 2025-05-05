@@ -20,7 +20,7 @@ In your Laravel project's `composer.json`, add the following:
 "repositories": [
     {
         "type": "vcs",
-        "url": "https://github.com/your-username/your-package-repository"
+        "url": "https://github.com/SakshiChavan13/Laravel-crud-generator/"
     }
 ],
 ```
