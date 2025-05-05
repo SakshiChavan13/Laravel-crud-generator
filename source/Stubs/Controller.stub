@@ -36,7 +36,7 @@ class {{ modelName }}Controller extends Controller
         return new {{ modelName }}Resource(${{ modelVariable }});
     }
 
-    public function destroy(Delete{{ modelName }}Request $request,{{ modelName }} ${{ modelVariable }})
+    public function destroy(Destroy{{ modelName }}Request $request,{{ modelName }} ${{ modelVariable }})
     {
         ${{ modelVariable }}->delete();
         return response()->noContent();
