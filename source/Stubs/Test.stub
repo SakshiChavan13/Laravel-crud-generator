@@ -42,14 +42,14 @@ it('returns 200 when {{ modelName }} updated successfully', function () {
     $response->assertStatus(Response::HTTP_OK);
 });
 
-it('returns 204 when {{ modelName | lower }} deleted successfully', function () {
+it('returns 204 when {{ modelName }} deleted successfully', function () {
     $user = User::factory()->create();
     $model = {{ modelName }}::factory()->create();
     $response = $this->actingAs($user)->deleteJson('/api/{{ route }}/' . $model->id);
     $response->assertStatus(Response::HTTP_NO_CONTENT);
 });
 
-it('returns 404 when trying to fetch non-existent {{ modelName | lower }}', function () {
+it('returns 404 when trying to fetch non-existent {{ modelName }}', function () {
     $user = User::factory()->create();
     $response = $this->actingAs($user)->getJson('/api/{{ route }}/999999');
     $response->assertStatus(Response::HTTP_NOT_FOUND);
