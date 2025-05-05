@@ -400,7 +400,8 @@ EOD;
 
             if (Str::endsWith($name, '_id')) {
                 $relation = Str::studly(str_replace('_id', '', $name));
-                $definitions[] = "'{$name}' => \\App\\Models\\{$relation}::factory(),";
+                $imports[] = "use App\\Models\\{$relation}\\{$resource};";
+                $definitions[] = "'{$name}' => {$relation}::factory(),";
             } elseif (!is_null($default)) {
                 $value = is_string($default) ? "'{$default}'" : $default;
                 $definitions[] = "'{$name}' => {$value},";
@@ -410,10 +411,11 @@ EOD;
         }
 
         $definitionsString = implode("\n            ", $definitions);
+        $imports = implode("\n", $imports);
 
         $stub = str_replace(
-            ['{{ modelName }}', '{{ className }}', '{{ definitions }}'],
-            [$namespaceModel, $className, $definitionsString],
+            ['{{ modelName }}', '{{ className }}', '{{ definitions }}', '{{ imports }}'],
+            [$namespaceModel, $className, $definitionsString, $imports],
             $stub
         );
 
@@ -466,18 +468,38 @@ EOD;
         $resourceName = Str::plural(Str::kebab($modelName));
         $controllerName = "{$modelName}Controller";
 
-        $routeEntry = "Route::apiResource('{$resourceName}', \\App\\Http\\Controllers\\{$controllerName}::class);\n";
+        $importStatement = "use App\\Http\\Controllers\\{$modelName}\\{$controllerName};";
+
+        $routeEntry = "Route::apiResource('{$resourceName}', {$controllerName}::class);";
 
         $routeFile = base_path('routes/api.php');
 
-        // Ensure the routes directory and file exist
-        if (!File::exists($routeFile)) {
+          // Ensure the routes directory and file exist
+          if (!File::exists($routeFile)) {
             File::ensureDirectoryExists(base_path('routes'));
             File::put($routeFile, "<?php\n\nuse Illuminate\\Support\\Facades\\Route;\n\n");
             $this->command->info("routes/api.php file created.");
         }
 
         $contents = File::get($routeFile);
+
+
+        if (!Str::contains($contents, $importStatement)) {
+            $lines = explode("\n", $contents);
+            $insertIndex = 0;
+    
+            // Find last use statement to insert after
+            foreach ($lines as $index => $line) {
+                if (Str::startsWith(trim($line), 'use ')) {
+                    $insertIndex = $index + 1;
+                }
+            }
+    
+            array_splice($lines, $insertIndex, 0, $importStatement);
+            $contents = implode("\n", $lines);
+            File::put($routeFile, $contents);
+            $this->command->info("Import added for {$controllerName} in routes/api.php");
+        }
 
         if (!Str::contains($contents, $controllerName)) {
             File::append($routeFile, "\n" . $routeEntry);
