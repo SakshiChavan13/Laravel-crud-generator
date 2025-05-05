@@ -400,7 +400,7 @@ EOD;
 
             if (Str::endsWith($name, '_id')) {
                 $relation = Str::studly(str_replace('_id', '', $name));
-                $imports[] = "use App\\Models\\{$relation}\\{$resource};";
+                $imports[] = "use App\\Models\\{$relation}\\{$relation};";
                 $definitions[] = "'{$name}' => {$relation}::factory(),";
             } elseif (!is_null($default)) {
                 $value = is_string($default) ? "'{$default}'" : $default;
