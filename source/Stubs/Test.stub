@@ -12,14 +12,14 @@ it('returns list of {{ route }}', function () {
     $response->assertJsonCount(5, 'data');
 });
 
-it('returns single data of {{ modelName | lower }}', function () {
+it('returns single data of {{ modelName }}', function () {
     $user = User::factory()->create();
     $model = {{ modelName }}::factory()->create();
     $response = $this->actingAs($user)->getJson('/api/{{ route }}/' . $model->id);
     $response->assertStatus(Response::HTTP_OK);
 });
 
-it('returns 201 when {{ modelName | lower }} created successfully', function () {
+it('returns 201 when {{ modelName }} created successfully', function () {
     $user = User::factory()->create();
     $response = $this->actingAs($user)->postJson('/api/{{ route }}', [
         // TODO: add valid fields
@@ -33,7 +33,7 @@ it('returns 422 when required fields are missing', function () {
     $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
 });
 
-it('returns 200 when {{ modelName | lower }} updated successfully', function () {
+it('returns 200 when {{ modelName }} updated successfully', function () {
     $user = User::factory()->create();
     $model = {{ modelName }}::factory()->create();
     $response = $this->actingAs($user)->putJson('/api/{{ route }}/' . $model->id, [
