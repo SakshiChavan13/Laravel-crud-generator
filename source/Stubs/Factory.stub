@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\{{ modelName }};
 use Illuminate\Database\Eloquent\Factories\Factory;
+{{ imports }}
 
 class {{ className }} extends Factory
 {
