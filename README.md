@@ -19,8 +19,8 @@ In your Laravel project's `composer.json`, add the following:
 ```json
 "repositories": [
     {
-        "type": "path",
-        "url": "./packages/laravel-crud-generator"
+        "type": "vcs",
+        "url": "https://github.com/your-username/your-package-repository"
     }
 ],
 ```
