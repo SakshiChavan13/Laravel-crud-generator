@@ -4,12 +4,6 @@ A simple and customizable Laravel package to generate CRUD operations from a JSO
 
 ---
 
-##  Under Development
-
-This package is not yet available on Packagist. To use it, add it manually to your Laravel project's `composer.json`.
-
----
-
 ## 🛠️ Installation
 
 ### Step 1: Require the package
