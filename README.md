@@ -12,13 +12,13 @@ Run:
 composer require sakshi-chavan/laravel-crud-generator
 ```
 
-### Step 3: Generate CRUD template
+### Step 2: Generate CRUD template
 Run:
 ```
 php artisan make:crud-template {jsonFileName}
 ```
 
-### Step 4: Edit the generated template
+### Step 3: Edit the generated template
 E.g Post.json template
 ```
 {
@@ -55,7 +55,7 @@ E.g Post.json template
 }
 ```
 
-### Step 5: Generate CRUD Command
+### Step 4: Generate CRUD Command
 Run:
 ```
 php artisan generate:crud {jsonFileName}
