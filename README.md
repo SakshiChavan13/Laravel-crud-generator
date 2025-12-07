@@ -70,13 +70,12 @@ This package allows you to automatically generate full CRUD functionality in Lar
 
 - ✅ Model generation  
 - ✅ Migration generation  
-- ✅ Form Request classes along with accurate permissions to authorize
+- ✅ Form Request classes 
 - ✅ Route entries  
 - ✅ Controller with CRUD logic  
 - ✅ Resource generation
-- ✅ Permissions file
 - ✅ Factory generation
-- ✅ Basic Crud Test cases generation
+- ✅ Basic Crud Test cases generation(PEST)
 
  ⚠️ **Note**: All files and respective code are generated based on stub templates.  
 > Imports for related models (like relationships) may not always be accurate.  
