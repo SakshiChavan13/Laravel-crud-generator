@@ -14,7 +14,7 @@ class {{ className }} extends FormRequest
      */
     public function authorize(): bool
     {
-         return $this->user()?->can({{ modelName }}Permissions::{{ permissionConst }}['name']) ?? false;
+         return true;
     }
 
     /**

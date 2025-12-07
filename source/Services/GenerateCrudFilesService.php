@@ -50,7 +50,7 @@ class GenerateCrudFilesService
             }
 
             if ($generateTests) {
-                $this->generateTests($modelName);
+                $this->generateTests($modelName, $fields);
             }
         } catch (Exception $e) {
 
@@ -233,16 +233,21 @@ EOD;
                 if (Str::endsWith($name, '_id')) {
                     $relation = str_replace('_id', '', $name);
                     $relatedTable = Str::plural($relation);
-                    $line = "\$table->foreignId('{$name}')->constrained('{$relatedTable}')";
+                    if ($nullable) {
+                        $line = "\$table->foreignId('{$name}')->nullable()->constrained('{$relatedTable}')";
+                    } else {
+                        $line = "\$table->foreignId('{$name}')->constrained('{$relatedTable}')";
+                    }
                 } elseif ($type === 'integer') {
                     $line = "\$table->unsignedBigInteger('{$name}')";
+                    if ($nullable) {
+                        $line .= "->nullable()";
+                    }
                 } else {
                     $line = "\$table->{$type}('{$name}')";
-                }
-
-
-                if ($nullable) {
-                    $line .= "->nullable()";
+                    if ($nullable) {
+                        $line .= "->nullable()";
+                    }
                 }
 
 
@@ -445,16 +450,19 @@ EOD;
         };
     }
 
-    private function generateTests($modelName)
+    private function generateTests($modelName, $fields)
     {
-        $stub = $this->getStubContent('Test.stub');;
+        $stub = $this->getStubContent('Test.stub');
 
         $className = Str::studly($modelName);
-        $route = Str::plural(Str::kebab($modelName));
+        $route     = Str::plural(Str::kebab($modelName));
+
+        $createFields = $this->generateFieldValues($fields, false);
+        $updateFields = $this->generateFieldValues($fields, true);
 
         $stub = str_replace(
-            ['{{ modelName }}', '{{ route }}'],
-            [$className, $route],
+            ['{{ modelName }}', '{{ route }}', '{{ createFields }}', '{{ updateFields }}'],
+            [$className, $route, $createFields, $updateFields],
             $stub
         );
 
@@ -465,8 +473,10 @@ EOD;
 
         $filePath = "{$testDir}/{$className}Test.php";
         File::put($filePath, $stub);
+
         $this->command->info("test file created: $filePath");
     }
+
 
     private function generateRoutes($modelName)
     {
@@ -501,13 +511,10 @@ EOD;
             }
 
             array_splice($lines, $insertIndex, 0, $importStatement);
+            File::append($routeFile, "\n" . $routeEntry);
+
             $contents = implode("\n", $lines);
             File::put($routeFile, $contents);
-            $this->command->info("Import added for {$controllerName} in routes/api.php");
-        }
-
-        if (!Str::contains($contents, $controllerName)) {
-            File::append($routeFile, "\n" . $routeEntry);
             $this->command->info("API route added for {$modelName} in routes/api.php");
         } else {
             $this->command->warn("Route for {$modelName} already exists in routes/api.php");
@@ -534,5 +541,41 @@ EOD;
         } catch (Exception $e) {
             throw new Exception("Error getting stub content: " . $e->getMessage());
         }
+    }
+
+    private function generateFieldValues($fields, $isUpdate = false)
+    {
+        $lines = "";
+
+        foreach ($fields as $field) {
+            $name = $field['name'];
+            $type = $field['type'];
+
+            switch ($type) {
+                case 'string':
+                case 'text':
+                    $value = $isUpdate ? "'Updated " . ucfirst($name) . "'" : "'Test " . ucfirst($name) . "'";
+                    break;
+
+                case 'boolean':
+                    $value = $isUpdate ? 'false' : 'true';
+                    break;
+
+                case 'integer':
+                    $value = $isUpdate ? 999 : 123;
+                    break;
+
+                case 'date':
+                    $value = $isUpdate ? "'2024-02-02'" : "'2024-01-01'";
+                    break;
+
+                default:
+                    $value = "'Sample'";
+            }
+
+            $lines .= "        '{$name}' => {$value},\n";
+        }
+
+        return $lines;
     }
 }

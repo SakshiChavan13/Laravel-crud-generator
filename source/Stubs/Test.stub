@@ -22,7 +22,7 @@ it('returns single data of {{ modelName }}', function () {
 it('returns 201 when {{ modelName }} created successfully', function () {
     $user = User::factory()->create();
     $response = $this->actingAs($user)->postJson('/api/{{ route }}', [
-        // TODO: add valid fields
+        {{ createFields }}
     ]);
     $response->assertStatus(Response::HTTP_CREATED);
 });
@@ -37,7 +37,7 @@ it('returns 200 when {{ modelName }} updated successfully', function () {
     $user = User::factory()->create();
     $model = {{ modelName }}::factory()->create();
     $response = $this->actingAs($user)->putJson('/api/{{ route }}/' . $model->id, [
-        // TODO: add updated fields
+        {{ updateFields }}
     ]);
     $response->assertStatus(Response::HTTP_OK);
 });

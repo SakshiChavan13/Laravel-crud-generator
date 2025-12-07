@@ -25,8 +25,11 @@ class MakeCrudTemplate extends Command
             'generate_factory' => true,
             'generate_tests' => true,
             'fields' => [
-                ['name' => 'title', 'type' => 'string'],
-                ['name' => 'content', 'type' => 'text']
+                ['name' => 'title', 'type' => 'string', 'nullable' => false],
+                ['name' => 'content', 'type' => 'text', 'nullable' => false],
+                ['name' => 'user_id', 'type' => 'integer', 'nullable' => false],
+                ['name' => 'is_active', 'type' => 'boolean', 'nullable' => false, 'default' => 1],
+                 
             ]
         ];
 
