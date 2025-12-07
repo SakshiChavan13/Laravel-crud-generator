@@ -20,9 +20,10 @@ class MakeCrudTemplate extends Command
         }
 
         $template = [
+            '_comment' => 'You can add, remove, or update fields in this section.',
             'model' => $name,
-            'generate_validation_requests' => true,
-            'generate_inside_folder' => true,
+            'generate_factory' => true,
+            'generate_tests' => true,
             'fields' => [
                 ['name' => 'title', 'type' => 'string'],
                 ['name' => 'content', 'type' => 'text']

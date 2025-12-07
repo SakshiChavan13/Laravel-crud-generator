@@ -24,17 +24,19 @@ class GenerateCrudFilesService
     {
         try {
 
-            $modelName = $template['model'];
-            $fields = $template['fields'];
+            $modelName = $template['model'] ?? '';
+            $fields = $template['fields'] ?? [];
+            $generateFactory = $template['generate_factory'] ?? true;
+            $generateTests = $template['generate_tests'] ?? true;
             // dump($fields);
 
-            $this->generatePermissions($modelName);
+            if (!$modelName || empty($fields)) {
+                throw new Exception("Model name or fields are missing in the template.");
+            }
 
             $this->generateRequest($modelName, 'STORE', $fields);
             $this->generateRequest($modelName, 'UPDATE', $fields);
-            $this->generateRequest($modelName, 'INDEX', $fields);
             $this->generateRequest($modelName, 'DESTROY', $fields);
-            $this->generateRequest($modelName, 'SHOW', $fields);
 
             $this->generateModel($modelName, $fields);
             $this->generateMigration($modelName, $fields);
@@ -43,10 +45,13 @@ class GenerateCrudFilesService
 
 
             $this->generateRoutes($modelName);
+            if ($generateFactory) {
+                $this->generateFactory($modelName, $fields);
+            }
 
-            $this->generateFactory($modelName, $fields);
-
-            $this->generateTests($modelName);
+            if ($generateTests) {
+                $this->generateTests($modelName);
+            }
         } catch (Exception $e) {
 
             throw ($e);
@@ -54,34 +59,34 @@ class GenerateCrudFilesService
     }
 
 
-    private function generatePermissions($modelName)
-    {
-        try {
-            $stub = $this->getStubContent('Permissions.stub');
-            $upperModel = Str::upper($modelName);
-            $tableName = Str::plural(Str::snake($modelName));
+    // private function generatePermissions($modelName)
+    // {
+    //     try {
+    //         $stub = $this->getStubContent('Permissions.stub');
+    //         $upperModel = Str::upper($modelName);
+    //         $tableName = Str::plural(Str::snake($modelName));
 
-            $stub = str_replace(
-                ['{{ modelName }}', '{{ upperModel }}', '{{ tableName }}'],
-                [$modelName, $upperModel, $tableName],
-                $stub
-            );
+    //         $stub = str_replace(
+    //             ['{{ modelName }}', '{{ upperModel }}', '{{ tableName }}'],
+    //             [$modelName, $upperModel, $tableName],
+    //             $stub
+    //         );
 
-            $dir = app_path('Constants/Permissions');
-            if (!File::exists($dir)) {
-                File::makeDirectory($dir, 0755, true);
-            }
+    //         $dir = app_path('Constants/Permissions');
+    //         if (!File::exists($dir)) {
+    //             File::makeDirectory($dir, 0755, true);
+    //         }
 
-            $path = "{$dir}/{$modelName}Permissions.php";
-            File::put($path, $stub);
+    //         $path = "{$dir}/{$modelName}Permissions.php";
+    //         File::put($path, $stub);
 
-            if ($this->command) {
-                $this->command->info("Permission constants created: $path");
-            }
-        } catch (Exception $e) {
-            throw ($e);
-        }
-    }
+    //         if ($this->command) {
+    //             $this->command->info("Permission constants created: $path");
+    //         }
+    //     } catch (Exception $e) {
+    //         throw ($e);
+    //     }
+    // }
 
 
     private function generateRequest($modelName, $type, $fields)
@@ -287,7 +292,7 @@ EOD;
                     $relationModel = ucfirst($relation);
                     $resource = Str::studly($relation) . 'Resource';
 
-                    $imports[] = "use App\Http\Resources\\{$relationModel}\\{$resource};";
+                    $imports[] = "use App\Http\Resources\\{$resource};";
 
                     $resourceFields[$relation] = "new {$resource}(\$this->whenLoaded('{$relation}'))";
                 } elseif (!in_array($name, ['id', 'created_at', 'updated_at'])) {
@@ -313,7 +318,7 @@ EOD;
                 $stub
             );
 
-            $dir = app_path("Http/Resources/{$namespaceModel}");
+            $dir = app_path("Http/Resources");
             if (!File::exists($dir)) {
                 File::makeDirectory($dir, 0755, true);
             }
@@ -343,7 +348,7 @@ EOD;
                 $stub
             );
 
-            $dir = app_path("Http/Controllers/{$modelName}");
+            $dir = app_path("Http/Controllers");
             if (!File::exists($dir)) {
                 File::makeDirectory($dir, 0755, true);
             }
@@ -474,8 +479,8 @@ EOD;
 
         $routeFile = base_path('routes/api.php');
 
-          // Ensure the routes directory and file exist
-          if (!File::exists($routeFile)) {
+        // Ensure the routes directory and file exist
+        if (!File::exists($routeFile)) {
             File::ensureDirectoryExists(base_path('routes'));
             File::put($routeFile, "<?php\n\nuse Illuminate\\Support\\Facades\\Route;\n\n");
             $this->command->info("routes/api.php file created.");
@@ -487,14 +492,14 @@ EOD;
         if (!Str::contains($contents, $importStatement)) {
             $lines = explode("\n", $contents);
             $insertIndex = 0;
-    
+
             // Find last use statement to insert after
             foreach ($lines as $index => $line) {
                 if (Str::startsWith(trim($line), 'use ')) {
                     $insertIndex = $index + 1;
                 }
             }
-    
+
             array_splice($lines, $insertIndex, 0, $importStatement);
             $contents = implode("\n", $lines);
             File::put($routeFile, $contents);
@@ -512,14 +517,14 @@ EOD;
     public function getStubContent(string $stubName): string
     {
         try {
-           
+
             if (File::exists(resource_path('crud-generator-stubs/' . $stubName))) {
-                
+
                 return File::get(resource_path('crud-generator-stubs/' . $stubName));
             } else {
-                
+
                 $stubPath = realpath(__DIR__ . '/../Stubs/' . $stubName);
-                
+
                 if (!File::exists($stubPath)) {
                     throw new Exception("Stub file not found: " . $stubName);
                 }
@@ -530,5 +535,4 @@ EOD;
             throw new Exception("Error getting stub content: " . $e->getMessage());
         }
     }
-
 }
