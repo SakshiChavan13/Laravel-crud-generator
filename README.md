@@ -12,20 +12,7 @@ This package is not yet available on Packagist. To use it, add it manually to yo
 
 ## 🛠️ Installation
 
-### Step 1: Add the package to your Laravel project
-
-In your Laravel project's `composer.json`, add the following:
-
-```json
-"repositories": [
-    {
-        "type": "vcs",
-        "url": "https://github.com/SakshiChavan13/Laravel-crud-generator/"
-    }
-],
-```
-
-### Step 2: Require the package
+### Step 1: Require the package
 Run:
 ```
 composer require sakshi-chavan/laravel-crud-generator
