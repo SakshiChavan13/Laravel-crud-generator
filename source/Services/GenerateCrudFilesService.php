@@ -484,12 +484,10 @@ EOD;
         $controllerName = "{$modelName}Controller";
 
         $importStatement = "use App\\Http\\Controllers\\{$modelName}\\{$controllerName};";
-
         $routeEntry = "Route::apiResource('{$resourceName}', {$controllerName}::class);";
 
         $routeFile = base_path('routes/api.php');
 
-        // Ensure the routes directory and file exist
         if (!File::exists($routeFile)) {
             File::ensureDirectoryExists(base_path('routes'));
             File::put($routeFile, "<?php\n\nuse Illuminate\\Support\\Facades\\Route;\n\n");
@@ -498,28 +496,33 @@ EOD;
 
         $contents = File::get($routeFile);
 
-
         if (!Str::contains($contents, $importStatement)) {
+
             $lines = explode("\n", $contents);
             $insertIndex = 0;
 
-            // Find last use statement to insert after
+
             foreach ($lines as $index => $line) {
                 if (Str::startsWith(trim($line), 'use ')) {
                     $insertIndex = $index + 1;
                 }
             }
 
-            array_splice($lines, $insertIndex, 0, $importStatement);
-            File::append($routeFile, "\n" . $routeEntry);
 
-            $contents = implode("\n", $lines);
-            File::put($routeFile, $contents);
+            array_splice($lines, $insertIndex, 0, $importStatement);
+
+
+            $lines[] = $routeEntry;
+
+
+            File::put($routeFile, implode("\n", $lines));
+
             $this->command->info("API route added for {$modelName} in routes/api.php");
         } else {
             $this->command->warn("Route for {$modelName} already exists in routes/api.php");
         }
     }
+
 
     public function getStubContent(string $stubName): string
     {
